@@ -38,7 +38,6 @@ export class AllExceptionsFilter implements ExceptionFilter {
       });
     } else {
       // handle other exceptions
-      console.log('exception', exception);
       response.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
         timestamp: new Date().toISOString(),

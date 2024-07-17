@@ -116,7 +116,7 @@ export class EmployeeService {
     });
 
     if (!employee) {
-      return null;
+      throw new HttpException('Employee not found', 404);
     }
 
     return employee;

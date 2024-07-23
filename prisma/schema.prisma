@@ -46,6 +46,24 @@ model Project {
   @@map("projects")
 }
 
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  username  String   @unique
+  password  String
+  role      ERole
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  name      String?
+
+  @@map("users")
+}
+
+enum ERole {
+  Admin
+  User
+}
+
 enum EPosition {
   Manager
   Developer

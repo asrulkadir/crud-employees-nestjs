@@ -1,3 +1,4 @@
+import { AuthModule } from './modules/auth/auth.module';
 import { UserModule } from './modules/user/user.module';
 import { CommonModule } from './common/common.module';
 import { DepartmentModule } from './modules/department/department.module';
@@ -7,6 +8,7 @@ import { Module } from '@nestjs/common';
 
 @Module({
   imports: [
+    AuthModule,
     UserModule,
     CommonModule,
     DepartmentModule,

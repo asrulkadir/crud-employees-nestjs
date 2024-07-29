@@ -9,6 +9,7 @@ import { PrismaService } from 'src/common/prisma.service';
 import { ValidationService } from 'src/common/validation.service';
 import { LoginRequest } from 'src/model/auth.model';
 import { AuthValidation } from './auth.validation';
+import { UserResponse } from 'src/model/user.model';
 
 @Injectable()
 export class AuthService {
@@ -18,7 +19,7 @@ export class AuthService {
     private validationService: ValidationService,
   ) {}
 
-  async signIn(request: LoginRequest): Promise<{ access_token: string }> {
+  async signIn(request: LoginRequest): Promise<UserResponse> {
     const loginRequest: LoginRequest = this.validationService.validate(
       AuthValidation.LOGIN,
       request,
@@ -46,6 +47,11 @@ export class AuthService {
     const payload = { sub: user.id, username: user.username };
     return {
       access_token: await this.jwtService.signAsync(payload),
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      role: user.role,
+      name: user.name,
     };
   }
 }

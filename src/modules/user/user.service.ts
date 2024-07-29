@@ -8,7 +8,11 @@ import * as bcrypt from 'bcrypt';
 import { PrismaService } from 'src/common/prisma.service';
 import { ValidationService } from 'src/common/validation.service';
 import { UserValidation } from './user.validation';
-import { CreateUserRequest, UserResponse } from 'src/model/user.model';
+import {
+  CreateUserRequest,
+  UpdateUserRequest,
+  UserResponse,
+} from 'src/model/user.model';
 
 @Injectable()
 export class UserService {
@@ -25,27 +29,8 @@ export class UserService {
       request,
     );
 
-    // check if username already exists
-    const existingUsername = await this.prismaService.user.findFirst({
-      where: {
-        username: createRequest.username,
-      },
-    });
-
-    if (existingUsername) {
-      throw new HttpException('User username already exists', 400);
-    }
-
-    // check if email already exists
-    const existingEmail = await this.prismaService.user.findFirst({
-      where: {
-        email: createRequest.email,
-      },
-    });
-
-    if (existingEmail) {
-      throw new HttpException('User email already exists', 400);
-    }
+    await this.checkIfExists('username', createRequest.username);
+    await this.checkIfExists('email', createRequest.email);
 
     createRequest.password = await bcrypt.hash(createRequest.password, 10);
 
@@ -59,6 +44,85 @@ export class UserService {
       username: user.username,
       email: user.email,
       name: user.name,
+      role: user.role,
     };
+  }
+
+  async getUserByUsername(username: string): Promise<UserResponse> {
+    const user = await this.prismaService.user.findUnique({
+      where: {
+        username,
+      },
+    });
+
+    if (!user) {
+      throw new HttpException('User not found', 400);
+    }
+
+    return {
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      name: user.name,
+      role: user.role,
+    };
+  }
+
+  async updateUser(
+    userId: string,
+    request: UpdateUserRequest,
+  ): Promise<UserResponse> {
+    const updateRequest: UpdateUserRequest = this.validationService.validate(
+      UserValidation.UPDATE,
+      request,
+    );
+
+    const user = await this.prismaService.user.findUnique({
+      where: {
+        id: userId,
+      },
+    });
+
+    if (!user) {
+      throw new HttpException('User not found', 400);
+    }
+
+    if (updateRequest.username) {
+      await this.checkIfExists('username', updateRequest.username);
+    }
+
+    if (updateRequest.email) {
+      await this.checkIfExists('email', updateRequest.email);
+    }
+
+    if (updateRequest.password) {
+      updateRequest.password = await bcrypt.hash(updateRequest.password, 10);
+    }
+
+    const updatedUser = await this.prismaService.user.update({
+      where: {
+        id: userId,
+      },
+      data: updateRequest,
+    });
+
+    return {
+      username: updatedUser.username,
+      email: updatedUser.email,
+      name: updatedUser.name,
+      role: updatedUser.role,
+    };
+  }
+
+  async checkIfExists(property: 'username' | 'email', value: string) {
+    const existingUser = await this.prismaService.user.findFirst({
+      where: {
+        [property]: value,
+      },
+    });
+
+    if (existingUser) {
+      throw new HttpException(`User ${property} already exists`, 400);
+    }
   }
 }

@@ -28,7 +28,7 @@ export class AuthController {
     res.send({
       status: 'success',
       message: 'Login successful',
-      access_token: result.access_token,
+      data: result,
     });
   }
 }

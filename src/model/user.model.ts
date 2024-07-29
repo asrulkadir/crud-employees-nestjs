@@ -9,12 +9,19 @@ export class CreateUserRequest {
 }
 
 export class UserResponse {
+  id?: string;
   username: string;
   name: string;
   email: string;
+  access_token?: string;
+  role: string;
 }
 
 export class UpdateUserRequest {
+  id: string;
   name?: string;
   password?: string;
+  username?: string;
+  email?: string;
+  role?: EUserRole.Admin | EUserRole.User;
 }

@@ -18,12 +18,14 @@ import {
   UserResponse,
 } from 'src/model/user.model';
 import { WebResponse } from 'src/model/web.model';
+import { Public } from 'src/common/public.decorator';
 
 @Controller('api/users')
 export class UserController {
   constructor(private userService: UserService) {}
 
   @Post()
+  @Public()
   @HttpCode(200)
   async register(
     @Body() request: CreateUserRequest,
